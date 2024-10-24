@@ -1,4 +1,3 @@
-
 import { fastify } from 'fastify'
 import cors from '@fastify/cors'
 import { DatabasePostgres } from './database-postgres.js'
@@ -43,6 +42,8 @@ server.delete('/users/:id', async (request, reply) => {
 
     return reply.status(204).send();
 })
+
+export { server };
 
 
 server.listen({
