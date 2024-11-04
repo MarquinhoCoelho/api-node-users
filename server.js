@@ -45,7 +45,7 @@ server.delete('/users/:id', async (request, reply) => {
 
 export { server };
 
-
 server.listen({
-    port: 3333
+    port: 3333,
+    host: '0.0.0.0'
 });

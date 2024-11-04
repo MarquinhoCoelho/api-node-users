@@ -9,9 +9,9 @@ POST http://localhost:3333/users
 Content-Type: application/json
 
 {
-    "name": "ORELHA",
+    "name": "Marcos",
     "password": "12345",
-    "profile": "COMUM"
+    "profile": "ADM"
 }
 
 ###
