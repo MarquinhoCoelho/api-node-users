@@ -17,11 +17,10 @@ server.register(cors, {
 server.post('/login', async (request, reply) => {
     const userData = request.body; // Renomeie a variável 'user' para 'userData'
     const user = await databasePostgres.login(userData); // Passa a variável renomeada
-
     if (user && user.length > 0) {
-        return reply.status(200).send('Logado com sucesso!');
+        return reply.status(200).send({ message: 'Logado com sucesso!' });
     } else {
-        return reply.status(400).send('Credenciais inválidas!');
+        return reply.status(400).send({ message: 'Credenciais inválidas!' });
     }
 });
 

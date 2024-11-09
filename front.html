@@ -10,34 +10,27 @@
             margin: 0;
             background-color: #f4f4f9;
         }
-
-        /* Estilos do Header */
         header {
             background-color: #007BFF;
             padding: 15px;
             text-align: center;
             color: white;
         }
-
         header a {
             color: white;
             margin: 0 20px;
             text-decoration: none;
             font-weight: bold;
         }
-
         header a:hover {
             text-decoration: underline;
         }
-
-        /* Estilos dos Containers de Formulários */
         .container {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 80vh;
         }
-
         .form-container {
             background-color: #fff;
             padding: 20px;
@@ -45,17 +38,14 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 300px;
         }
-
         h2 {
             text-align: center;
             margin-bottom: 20px;
         }
-
         label {
             display: block;
             margin: 10px 0 5px;
         }
-
         input, select {
             width: 94%;
             padding: 8px;
@@ -63,7 +53,6 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-
         button {
             width: 100%;
             padding: 10px;
@@ -73,32 +62,26 @@
             border-radius: 4px;
             cursor: pointer;
         }
-
         button:hover {
             background-color: #0056b3;
         }
-
         #message {
             margin-top: 15px;
             text-align: center;
             font-weight: bold;
         }
-
-        /* Estilos de tabs */
         .tab-content {
             display: none;
         }
-
         .tab-content.active {
             display: block;
         }
-
         .tabs {
             text-align: center;
             margin-top: 30px;
             display: flex;
+            justify-content: center;
         }
-
         .tabs button {
             background-color: #7474746a;
             border: 1px solid #ccc;
@@ -108,15 +91,26 @@
             cursor: pointer;
             font-weight: bold;
         }
-
         .tabs button.active {
             background-color: #007BFF;
+            color: white;
+        }
+        .message {
+            padding: 10px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .message.success {
+            background-color: #28a745;
+            color: white;
+        }
+        .message.error {
+            background-color: #dc3545;
             color: white;
         }
     </style>
 </head>
 <body>
-
     <header>
         <h1>Bem-vindo ao Sistema</h1>
     </header>
@@ -127,7 +121,6 @@
     </div>
 
     <div class="container">
-        <!-- Formulário de Login -->
         <div id="login-form" class="form-container tab-content active">
             <h2>Login</h2>
             <form id="login-form-element">
@@ -142,7 +135,6 @@
             <div id="login-message"></div>
         </div>
 
-        <!-- Formulário de Cadastro -->
         <div id="register-form" class="form-container tab-content">
             <h2>Cadastro de Usuário</h2>
             <form id="register-form-element">
@@ -165,81 +157,87 @@
     </div>
 
     <script>
-        // Toggling entre os formulários de Login e Cadastro
-        const loginTab = document.getElementById('login-tab');
-        const registerTab = document.getElementById('register-tab');
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`[id=${tabId}-tab]`).classList.add('active');
+        }
 
-        loginTab.addEventListener('click', () => {
-            loginTab.classList.add('active');
-            registerTab.classList.remove('active');
-            loginForm.classList.add('active');
-            registerForm.classList.remove('active');
+        document.getElementById('login-tab').addEventListener('click', () => switchTab('login-form'));
+        document.getElementById('register-tab').addEventListener('click', () => switchTab('register-form'));
+
+        document.getElementById('login-form-element').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const name = document.getElementById('login-name').value;
+    const password = document.getElementById('login-password').value;
+    const loginData = { name, password };
+
+    try {
+        const response = await fetch('http://localhost:3333/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(loginData)
         });
 
-        registerTab.addEventListener('click', () => {
-            registerTab.classList.add('active');
-            loginTab.classList.remove('active');
-            registerForm.classList.add('active');
-            loginForm.classList.remove('active');
-        });
+        const messageElement = document.getElementById('login-message');
+        if (response.ok) {
+            let data;
+            try {
+                // Primeiro tenta fazer o parsing como JSON
+                data = await response.json();
+            } catch {
+                // Se falhar, tenta pegar o texto bruto
+                data = { message: await response.text() };
+            }
 
-        // Função de Login
-        document.getElementById('login-form-element').addEventListener('submit', function(event) {
+            messageElement.textContent = data.message || 'Login realizado com sucesso!';
+            messageElement.className = 'message success';
+        } else {
+            const errorText = await response.text();
+            messageElement.textContent = errorText || 'Credenciais inválidas!';
+            messageElement.className = 'message error';
+        }
+    } catch (error) {
+        console.error('Erro ao fazer login:', error);
+        const messageElement = document.getElementById('login-message');
+        messageElement.textContent = 'Erro ao tentar fazer login.';
+        messageElement.className = 'message error';
+    }
+});
+
+
+        document.getElementById('register-form-element').addEventListener('submit', async function(event) {
             event.preventDefault();
-
-            const name = document.getElementById('login-name').value;
-            const password = document.getElementById('login-password').value;
-
-            const loginData = { name, password };
-
-            fetch('http://localhost:3333/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(loginData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message === 'Logado com sucesso!') {
-                    document.getElementById('login-message').textContent = 'Login realizado com sucesso!';
-                    document.getElementById('login-message').style.color = 'green';
-                } else {
-                    document.getElementById('login-message').textContent = 'Credenciais inválidas!';
-                    document.getElementById('login-message').style.color = 'red';
-                }
-            })
-            .catch(() => {
-
-            });
-        });
-
-        // Função de Cadastro
-        document.getElementById('register-form-element').addEventListener('submit', function(event) {
-            event.preventDefault();
-
             const name = document.getElementById('register-name').value;
             const password = document.getElementById('register-password').value;
             const profile = document.getElementById('profile').value;
-
             const userData = { name, password, profile };
 
-            fetch('http://localhost:3333/users', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(userData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('register-message').textContent = 'Usuário cadastrado com sucesso!';
-                document.getElementById('register-message').style.color = 'green';
-                document.getElementById('register-form-element').reset();
-            })
-            .catch(() => {
-                
-            });
+            try {
+                const response = await fetch('http://localhost:3333/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+                const messageElement = document.getElementById('register-message');
+                if (response.ok) {
+                    messageElement.textContent = data.message || 'Usuário cadastrado com sucesso!';
+                    messageElement.className = 'message success';
+                    document.getElementById('register-form-element').reset();
+                } else {
+                    messageElement.textContent = data.message || 'Erro ao cadastrar usuário.';
+                    messageElement.className = 'message error';
+                }
+            } catch (error) {
+                console.error('Erro ao cadastrar usuário:', error);
+                const messageElement = document.getElementById('register-message');
+                messageElement.textContent = 'Erro ao cadastrar usuário.';
+                messageElement.className = 'message error';
+            }
         });
     </script>
-
 </body>
 </html>
