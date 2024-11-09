@@ -2,6 +2,14 @@ import { randomUUID } from "crypto";
 import { sql } from './db.js';
 
 export class DatabasePostgres { 
+
+  async login(userData) {
+    // Renomeie a variável interna para evitar conflito
+    const result = await sql`select * from users where name = ${userData.name} AND password = ${userData.password}`;
+    return result.rows; // Retorne os resultados da consulta
+  }
+
+
   async listUsers() {
     const users = await sql`select * from users`;
     return users;
