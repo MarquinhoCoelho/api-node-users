@@ -6,7 +6,7 @@ export class DatabasePostgres {
   async login(userData) {
     // Renomeie a variável interna para evitar conflito
     const result = await sql`select * from users where name = ${userData.name} AND password = ${userData.password}`;
-    return result.rows; // Retorne os resultados da consulta
+    return result; // Retorne os resultados da consulta
   }
 
 
